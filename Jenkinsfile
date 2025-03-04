@@ -5,6 +5,10 @@ pipeline {
         SONAR_SCANNER = "${tool 'SonarQube Scanner'}/bin/SonarQube Scanner" // Ensure correct tool name
     }
 
+    tools {
+        terraform 'Terraform' // Ensure Terraform is installed in Jenkins
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -22,6 +26,30 @@ pipeline {
                     } else {
                         env.PATH = "${javaHome}\\bin;${env.PATH}"
                     }
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') { // Ensure your Terraform files exist in this folder
+                    bat 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform plan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
@@ -55,14 +83,11 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'sqp_c4da967e1f93a1ad93248e9f9e7408521da8b552', variable: 'SONAR_LOGIN')]) {
                         script {
-                            // Temporarily echo the SonarQube token for debugging (Remove this in production)
                             echo "The SonarQube token is: ${SONAR_LOGIN}"
 
-                            // SonarQube analysis for Unix systems
                             if (isUnix()) {
                                 sh "./gradlew sonarqube -Dsonar.login=$SONAR_LOGIN"
                             } else {
-                                // SonarQube analysis for Windows systems
                                 bat "gradlew.bat sonarqube -Dsonar.login=%SONAR_LOGIN%"
                             }
                         }
