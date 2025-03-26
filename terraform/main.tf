@@ -1,8 +1,8 @@
-provider "aws" {
-  region = "us-east-1"
+provider "local" {
+  # No configuration needed for the local provider
 }
 
-resource "aws_s3_bucket" "example" {
-  bucket = "my-terraform-bucket"
-  acl    = "private"
+resource "local_file" "example" {
+  content  = "This is a test file created by Terraform!"
+  filename = "${path.module}/example.txt"
 }

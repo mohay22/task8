@@ -2,17 +2,17 @@ pipeline {
     agent any
 
     environment {
-        SONAR_SCANNER = "${tool 'SonarQube Scanner'}/bin/SonarQube Scanner" // Ensure correct tool name
+        SONAR_SCANNER = "${tool 'SonarQube Scanner'}/bin/SonarQube Scanner"
     }
 
     tools {
-        terraform 'Terraform' // Ensure Terraform is installed in Jenkins
+        terraform 'Terraform'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/mohay22/task8.git' // Replace with your repository
+                git 'https://github.com/mohay22/task8.git'
             }
         }
 
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('terraform') { // Ensure your Terraform files exist in this folder
+                dir('terraform') {
                     bat 'terraform init'
                 }
             }
@@ -84,7 +84,6 @@ pipeline {
                     withCredentials([string(credentialsId: 'sqp_c4da967e1f93a1ad93248e9f9e7408521da8b552', variable: 'SONAR_LOGIN')]) {
                         script {
                             echo "The SonarQube token is: ${SONAR_LOGIN}"
-
                             if (isUnix()) {
                                 sh "./gradlew sonarqube -Dsonar.login=$SONAR_LOGIN"
                             } else {
